@@ -42,5 +42,5 @@
   - Preflight 요청에 access-control-request 가 설정되지 않아 발생한 문제
   - Preflight 요청이 OPTIONS 메서드인지, access-control-request 가 포함되었는지 확인한 후 interceptor를 통과하도록 설정
 - DeadLock
-  - 동시에 같은 상품에 대한 주문 요청 시, 주문이 생성되는 갯수와 감소하는 상품의 재고수의 차이와 함께 DeadLock 이 발생
-  - Redisson 을 통한 분산락 구현
+  - 잘못된 transaction의 적용으로 인한
+  - 올바른 transaction의 적용 및 Redisson 을 통한 분산락 구현
