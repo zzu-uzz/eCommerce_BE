@@ -1,46 +1,58 @@
-## 🏗아키텍쳐
+## 🏗 아키텍처
 ![제목 없는 다이어그램 drawio](https://github.com/weare4potato/eCommerce/assets/131866367/b6669871-fdc7-4296-a57d-70367f5ed60e)
 
-## 🍀주요 기술
+<br>
 
-- 언어 : Java
-- 서버 : AWS EC2, Github Action, Docker, RDS, S3, CloudFront
-- 모니터링 : Actuator, Prometheus + Grafana, CloudWatch
-- DB : MySQL, Redis
-- 프레임워크 : Spring Boot, Spring Data JPA, Gradle, Swagger
-- 오픈 API : 토스페이먼츠 PG
+## 🍀 주요 기술
+- Language : Java 17
+- Server : AWS EC2, RDS, S3, CloudFront
+- CI/CD : Github Actions, Docker
+- Monotoring : Actuator, Prometheus, Grafana, CloudWatch
+- Database: MySQL, Redis
+- Framework : Spring Boot, Spring Data JPA, Gradle, Swagger
+- OpenAPI : Toss Payments
 
-## 🗣️기술적 의사결정
+<br>
 
+## 🗣️ 기술적 의사결정
 - Redis 
-  - Redis의 다양한 확장성과 데이터 안정성을 고려하여 채택.
-  - 앞으로 메세지, 위치 서비스 등의 다양한 기능을 추가로 개발해 나갈 가능성을 생각함.
+  - 인 메모리 기반의 빠른 데이터 접근과 서버 확장 시 공유 가능한 저장소로 활용할 수 있어 채택
+  - 캐싱을 통한 조회 성능 개선 및 분산 환경에서의 동시성 제어에 활용
 - Redisson
-  - 분산 시스템에서도 빠르고 효율적인 동시성 제어 구현 가능
-  - lettuce보다 서버에 부하를 줄일 수 있음
-  - Map, List, Set등의 다양한 데이터 구조를 지원하기 때문에 여러 종류의 락을 유연하게 생성하고 관리 가능
-  - Lock획득에 대한 재시도와 타임아웃 지정 가능
-- Github Action
-    - 개발을 진행하면서 배포된 서버를 새로운 버전으로 교체해야 하는 일이 빈번히 일어날 것이라 예상했다.
-      자동화된 test 와 배포를 통해 코드의 안정성과 개발자의 생산성을 증가 시키는 효과를 얻을 수 있었다.
-    - 협업 툴로 Github을 사용하고 있기 때문에, Github Action을 사용하여 CI/CD를 설정하면 하나의 플랫폼에서 모든 작업을 처리할 수 있다는 장점이 있었다.
+  - Redis 기반의 분산 락을 구현하여 동시성 제어에 활용
+  - Lock 획득 대기 시간과 점유 시간을 설정할 수 있어 동시 요청을 제어하기 용이
+  - Pub/Sub 기반의 Lock 대기 및 해제를 지원하여 불필요한 반복 요청을 줄일 수 있음
+- Github Actions
+  - 테스트 및 배포 과정을 자동화하여 반복 작업을 최소화
+  - GitHub 기반의 CI/CD 환경을 구성하여 개발 및 배포 효율 향상
 - CDN
-    - 로딩마다 이미지같은 대용량 데이터를 수십, 수백 개를 오리진 서버에서 직접 불러오는 것은 과금 위험성 및, 트래픽에 영향을 준다.
-    - 중간에 CDN을 설치함으로써 첫 로딩 이후부터는 CDN에서 복사본을 갖고 오기에 트래픽 부담을 줄여주고 과금 위험성을 낮출 수 있다.
+  - 정적 리소스를 사용자와 가까운 서버에서 제공하여 응답 속도를 개선
+  - Origin 서버에 대한 반복 요청과 트래픽 부담을 줄이기 위해 CloudFront를 활용
 - Docker
-  - 개발, 테스트 및 프로덕션 환경에서의 일관된 환경을 제공
-  - 팀원들간의 버전 이슈 걱정이 없음
-  - 배포 편의성 증가
+  - 개발, 테스트 및 배포 환경의 일관성을 확보
+  - 애플리케이션 실행 환경을 표준화하여 배포 편의성을 향상
 
-## 🛠트러블슈팅
+<br>
 
-- 검색 성능 이슈
-  - 상품 이름에 인덱싱을 걸었지만, 여전히 Full Table Scan 이 발생
-  - Full Text Index 를 통해 3990ms -> 138ms 로 개선
-- Cors 에러
-  - 유저테스트를 위한 프론트와의 연결 과정 중 Cors 에러 발생
-  - Preflight 요청에 access-control-request 가 설정되지 않아 발생한 문제
-  - Preflight 요청이 OPTIONS 메서드인지, access-control-request 가 포함되었는지 확인한 후 interceptor를 통과하도록 설정
-- DeadLock
-  - 잘못된 transaction의 적용으로 인한
-  - 올바른 transaction의 적용 및 Redisson 을 통한 분산락 구현
+## 🛠 트러블슈팅
+- 카테고리별 상품 조회 성능 최적화
+  - 복합 Index 적용으로 조회 성능 개선(3020ms -> 106ms, 약 96.5% 개선)
+ 
+- 상품 검색 성능 개선
+  - LIKE 검색으로 인한 Full Table Scan 발생
+  - Full Text Index를 통해 검색 성능 개선(3990ms -> 138ms, 약 96.5% 개선)
+
+- 장바구니 조회 성능 개선
+  - Redis Cache 적용으로 조회 성능 개선(4460ms -> 199ms, 약 95.5% 개선) 
+
+- CORS
+  - 프론트엔드 연동 과정에서 PreFlight 요청 처리 문제 발생
+  - Preflight 요청이 OPTIONS 메서드인지, access-control-request 가 포함되었는지 확인한 후 interceptor를 통과하도록 설정하여 해결
+
+- 트랜잭션 범위로 인한 DeadLock
+  - 주문 생성 과정에서 트랜잭션 범위가 분리되어 DeadLock 발생
+  - 트랜잭션 범위를 조정하여 해결
+
+- 주문 동시성 문제
+  - 동일 상품의 재고에 대한 동시 접근으로 데이터 정합성 문제 발생
+  - Redisson 기반 분산 락을 적용하여 동시성 제어
